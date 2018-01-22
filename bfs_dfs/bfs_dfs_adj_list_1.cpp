@@ -1,6 +1,6 @@
 /*
  * Introduction to Algorithms
- * Problem 1. BFS/DFS
+ * Problem 1. BFS/DFS   (https://courses.csail.mit.edu/6.006/oldquizzes/solutions/q2-f2008-sol.pdf)
  *
  * Print BFS, DFS for below adj list starting from s:
  *
@@ -11,12 +11,16 @@
  * adj(d) = [c],
  * adj(e) = [s],
  *
- * DFS ==> s a c d e b  (if we visit elements based on ascending order of vetex value)
+ * DFS ==> s a c e b d
  * My Implementation DFS ==> s a c e b d
+ * 
+ * BFS ==> s a c d e b
+ * * My Implementation BFS ==> s d c a b e  (Since I don't visit nodes in its value' ascending order, the result varies)
 */
 
 #include <iostream>
 #include "../stack/my_stack_fixed.hpp"
+#include "../queue/my_queue_fixed.hpp"
 
 using namespace std;
 
@@ -36,195 +40,238 @@ typedef struct tagVertex
     VERTEXTPtr  m_pstNext;
 } VERTEXT;
 
-VERTEXTPtr gpstHead = nullptr;
-
-VERTEXTPtr GetVertext(char val)
+class CAdjListGraph
 {
-    VERTEXTPtr  pstVertex = gpstHead;
-    
-    while(pstVertex != nullptr)
-    {
-        if(pstVertex->m_val == val)
+    public:
+        CAdjListGraph()
         {
-            break;
+            m_pstHead = nullptr;
+        }
+        ~CAdjListGraph()
+        {
+            //
         }
 
-        pstVertex = pstVertex->m_pstNext;
-    }
-
-    if(nullptr == pstVertex)
-    {
-        pstVertex = new VERTEXT;
-
-        pstVertex->m_val = val;
-        pstVertex->m_pstEdges = nullptr;
-        pstVertex->m_bVisited = false;
-
-        pstVertex->m_pstNext = gpstHead;
-        gpstHead = pstVertex;
-    }
-
-    return pstVertex;
-}
-
-void AddEdge(char from, char to)
-{
-    EDGEPtr     pstEdge;
-    VERTEXTPtr  pstFromVertex = GetVertext(from);
-    VERTEXTPtr  pstToVerTex = GetVertext(to);
-
-    pstEdge = new EDGE;
-
-    pstEdge->m_pstToVertex = pstToVerTex;
-    pstEdge->m_pstNextEdge = pstFromVertex->m_pstEdges;
-    pstFromVertex->m_pstEdges = pstEdge;
-}
-
-int GetTotalNoOfVertices(void)
-{
-    int i32NoOfVertices = 0;
-    VERTEXTPtr  pstVertex = gpstHead;
-    
-    while(nullptr != pstVertex)
-    {
-        i32NoOfVertices++;
-        pstVertex = pstVertex->m_pstNext;
-    }
-
-    return i32NoOfVertices;
-}
-
-void PrintGraph(void)
-{
-    VERTEXTPtr  pstVertex = gpstHead;
-    EDGEPtr     pstEdge;
-
-    while(nullptr != pstVertex)
-    {
-        cout << "Vertext : " << pstVertex->m_val;
-
-        pstEdge = pstVertex->m_pstEdges;
-        while(nullptr != pstEdge)
+    public:
+        VERTEXTPtr GetVertext(char val)
         {
-            cout << " --> " << pstEdge->m_pstToVertex->m_val;
-            pstEdge = pstEdge->m_pstNextEdge;
+            VERTEXTPtr  pstVertex = m_pstHead;
+            
+            while(pstVertex != nullptr)
+            {
+                if(pstVertex->m_val == val)
+                {
+                    break;
+                }
+
+                pstVertex = pstVertex->m_pstNext;
+            }
+
+            if(nullptr == pstVertex)
+            {
+                pstVertex = new VERTEXT;
+
+                pstVertex->m_val = val;
+                pstVertex->m_pstEdges = nullptr;
+                pstVertex->m_bVisited = false;
+
+                pstVertex->m_pstNext = m_pstHead;
+                m_pstHead = pstVertex;
+            }
+
+            return pstVertex;
         }
-        cout << "\n";
 
-        pstVertex = pstVertex->m_pstNext;
-    }
-}
-
-void ClearVisistedFlags(void)
-{
-    VERTEXTPtr  pstVertex = gpstHead;
-    
-    while(nullptr != pstVertex)
-    {
-        pstVertex->m_bVisited = false;
-        pstVertex = pstVertex->m_pstNext;
-    }
-}
-
-void print_dfs(VERTEXTPtr pstRootNode)
-{
-    ClearVisistedFlags();
-    cout << "DFS: ";
-    
-    if(nullptr == pstRootNode)
-    {
-        cout << "Graph is empty...\n";
-        return;
-    }
-    int i32NoOfVertices = GetTotalNoOfVertices();
-
-    if(0 == i32NoOfVertices)
-    {
-        cout << "Graph is empty...\n";
-        return;
-    }
-    
-    CMyStack<VERTEXTPtr> stk(GetTotalNoOfVertices());
-    VERTEXTPtr  pstVertex;
-    EDGEPtr     pstEdge;
-    bool abVisited[i32NoOfVertices];
-
-    for(int i = 0; i < i32NoOfVertices; i++)
-    {
-        abVisited[i] = false;
-    }
-
-    stk.Push(pstRootNode);
-    while(stk.isEmpty() == false)
-    {
-        pstVertex = stk.Pop();
-
-        // if we have visited, skip this vertex
-        if(pstVertex->m_bVisited)
-            continue;
-
-        // Mark this node as visited
-        pstVertex->m_bVisited = true;
-        
-        // Do the visiting process
-        cout << pstVertex->m_val << " ";
-
-        // Add all the edges of this vertex
-        pstEdge = pstVertex->m_pstEdges;
-        while(nullptr != pstEdge)
+        void AddEdge(char from, char to)
         {
-            stk.Push(pstEdge->m_pstToVertex);
-            pstEdge = pstEdge->m_pstNextEdge;
+            EDGEPtr     pstEdge;
+            VERTEXTPtr  pstFromVertex = GetVertext(from);
+            VERTEXTPtr  pstToVerTex = GetVertext(to);
+
+            pstEdge = new EDGE;
+
+            pstEdge->m_pstToVertex = pstToVerTex;
+            pstEdge->m_pstNextEdge = pstFromVertex->m_pstEdges;
+            pstFromVertex->m_pstEdges = pstEdge;
         }
-    }
 
-    cout << "\n";
-}
+        int GetTotalNoOfVertices(void)
+        {
+            int i32NoOfVertices = 0;
+            VERTEXTPtr  pstVertex = m_pstHead;
+            
+            while(nullptr != pstVertex)
+            {
+                i32NoOfVertices++;
+                pstVertex = pstVertex->m_pstNext;
+            }
 
-void print_bfs(VERTEXTPtr pstRootNode)
-{
-    ClearVisistedFlags();
-    cout << "BFS: ";
+            return i32NoOfVertices;
+        }
 
-    if(nullptr == pstRootNode)
-    {
-        cout << "Graph is empty...\n";
-        return;
-    }
+        void PrintGraph(void)
+        {
+            VERTEXTPtr  pstVertex = m_pstHead;
+            EDGEPtr     pstEdge;
 
-    int i32NoOfVertices = GetTotalNoOfVertices();
-    if(0 == i32NoOfVertices)
-    {
-        cout << "Graph is empty...\n";
-        return;
-    }
+            while(nullptr != pstVertex)
+            {
+                cout << "Vertext : " << pstVertex->m_val;
 
-    //
+                pstEdge = pstVertex->m_pstEdges;
+                while(nullptr != pstEdge)
+                {
+                    cout << " --> " << pstEdge->m_pstToVertex->m_val;
+                    pstEdge = pstEdge->m_pstNextEdge;
+                }
+                cout << "\n";
 
+                pstVertex = pstVertex->m_pstNext;
+            }
+        }
 
-    cout << "\n";
-}
+        void ClearVisistedFlags(void)
+        {
+            VERTEXTPtr  pstVertex = m_pstHead;
+            
+            while(nullptr != pstVertex)
+            {
+                pstVertex->m_bVisited = false;
+                pstVertex = pstVertex->m_pstNext;
+            }
+        }
+
+        void print_dfs(VERTEXTPtr pstRootNode)
+        {
+            ClearVisistedFlags();
+            cout << "DFS: ";
+            
+            if(nullptr == pstRootNode)
+            {
+                cout << "Graph is empty...\n";
+                return;
+            }
+            int i32NoOfVertices = GetTotalNoOfVertices();
+
+            if(0 == i32NoOfVertices)
+            {
+                cout << "Graph is empty...\n";
+                return;
+            }
+            
+            CMyStack<VERTEXTPtr> stk(GetTotalNoOfVertices());
+            VERTEXTPtr  pstVertex;
+            EDGEPtr     pstEdge;
+            bool abVisited[i32NoOfVertices];
+
+            for(int i = 0; i < i32NoOfVertices; i++)
+            {
+                abVisited[i] = false;
+            }
+
+            stk.Push(pstRootNode);
+            while(stk.isEmpty() == false)
+            {
+                pstVertex = stk.Pop();
+
+                // if we have visited, skip this vertex
+                if(pstVertex->m_bVisited)
+                    continue;
+
+                // Mark this node as visited
+                pstVertex->m_bVisited = true;
+                
+                // Do the visiting process
+                cout << pstVertex->m_val << " ";
+
+                // Add all the edges of this vertex
+                pstEdge = pstVertex->m_pstEdges;
+                while(nullptr != pstEdge)
+                {
+                    stk.Push(pstEdge->m_pstToVertex);
+                    pstEdge = pstEdge->m_pstNextEdge;
+                }
+            }
+
+            cout << "\n";
+        }
+
+        void print_bfs(VERTEXTPtr pstRootNode)
+        {
+            ClearVisistedFlags();
+            cout << "BFS: ";
+
+            if(nullptr == pstRootNode)
+            {
+                cout << "Graph is empty...\n";
+                return;
+            }
+
+            int i32NoOfVertices = GetTotalNoOfVertices();
+            if(0 == i32NoOfVertices)
+            {
+                cout << "Graph is empty...\n";
+                return;
+            }
+
+            CMyQueue<VERTEXTPtr>    que(i32NoOfVertices);
+            VERTEXTPtr  pstVertex;
+            EDGEPtr     pstEdge;
+
+            que.Enqueue(pstRootNode);
+            while(que.isEmpty() == false)
+            {
+                pstVertex = que.Dequeue();
+
+                // If node is already visited, just continue
+                if(pstVertex->m_bVisited)
+                    continue;
+
+                // Mark that this node has been visited
+                pstVertex->m_bVisited = true;
+
+                // Do actual visiting process...
+                cout << pstVertex->m_val << " ";
+
+                // Visit all its children nodes
+                pstEdge = pstVertex->m_pstEdges;
+                while(nullptr != pstEdge)
+                {
+                    que.Enqueue(pstEdge->m_pstToVertex);
+                    pstEdge = pstEdge->m_pstNextEdge;
+                }
+            }
+
+            cout << "\n";
+        }
+
+    private:
+        VERTEXTPtr m_pstHead;
+};
 
 int main()
 {
-    PrintGraph();
+    CAdjListGraph   adjg;
     
-    AddEdge('s', 'a');
-    AddEdge('s', 'c');
-    AddEdge('s', 'd');
+    adjg.PrintGraph();
+    
+    adjg.AddEdge('s', 'a');
+    adjg.AddEdge('s', 'c');
+    adjg.AddEdge('s', 'd');
 
-    AddEdge('c', 'e');
-    AddEdge('c', 'b');
+    adjg.AddEdge('c', 'e');
+    adjg.AddEdge('c', 'b');
 
-    AddEdge('b', 'd');
+    adjg.AddEdge('b', 'd');
 
-    AddEdge('d', 'c');
+    adjg.AddEdge('d', 'c');
 
-    AddEdge('e', 's');
+    adjg.AddEdge('e', 's');
 
-    PrintGraph();
+    adjg.PrintGraph();
 
-    print_dfs(GetVertext('s'));
+    adjg.print_dfs(adjg.GetVertext('s'));
+    adjg.print_bfs(adjg.GetVertext('s'));
     
     return 0;
 }
