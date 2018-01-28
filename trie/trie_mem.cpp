@@ -142,10 +142,6 @@ class CTrie
         unsigned int    m_ui32TotalNodes;
 };
 
-#define RND_SEED                6654
-#define MAX_TRIE_DEPTH          32
-#define MAX_ENTRIES_TO_TRIE     20000
-
 void PrintCharsAsInt(unsigned char * pui8List, int size)
 {
     for(int i = 0; i < size; i++)
@@ -155,14 +151,22 @@ void PrintCharsAsInt(unsigned char * pui8List, int size)
     cout << endl;
 }
 
-int main()
+int main(int argc, char * argv[])
 {
+    if(argc < 4)
+    {
+        cout << argv[0] << "<seed> <depth> <no.of.Entries>" << endl;
+        return -1;
+    }
+    int seed = atoi(argv[1]);
+    int depth = atoi(argv[2]);
+    int entries = atoi(argv[3]);
     unsigned char   aui8Alphabets[ALPHABET_SIZE];
     int     i, j;
     CTrie   trie;
     TRIE_NODE_PTR   pstNode;
 
-    srand(RND_SEED);
+    srand(seed);
     
     // Generate Alphabet Set - should be unique
     for(i = 0; i < ALPHABET_SIZE; )
@@ -187,9 +191,9 @@ int main()
     trie.PrintStat();
 
     // Generate Sequences
-    srand(RND_SEED);
+    srand(seed);
 
-    for(i = 0; i < MAX_ENTRIES_TO_TRIE; i++)
+    for(i = 0; i < entries; i++)
     {
         pstNode = trie.AddNode(aui8Alphabets[rand() % ALPHABET_SIZE]);
         if(nullptr == pstNode)
@@ -197,7 +201,7 @@ int main()
             cout << i << " Malloc Error 1\n";
             exit(-1);
         }
-        for(j = 1; j < MAX_TRIE_DEPTH; j++)
+        for(j = 1; j < depth; j++)
         {
             pstNode = trie.AddNode(pstNode, aui8Alphabets[rand() % ALPHABET_SIZE]);
             if(nullptr == pstNode)
