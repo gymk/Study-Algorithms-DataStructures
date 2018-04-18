@@ -82,9 +82,13 @@ public:
             }
         }
 
-        pRoot->m_Data = pData;
+        if(pRoot)
+        {
+            pRoot->m_Data = pData;
+            return pData;
+        }
 
-        return pData;
+        return nullptr;
     }
 
     DATA_TYPE_PTR Search(const ALPHABET_TYPE * pStr)
