@@ -17,8 +17,9 @@ struct tagTTrieNode
     struct tagTTrieNode *   m_pRight;
     struct tagTTrieNode *   m_pMiddle;
 
-    tagTTrieNode()
+    tagTTrieNode(ALPHABET_TYPE terminator)
     {
+        m_split_char = terminator;
         m_pLeft = m_pRight = m_pMiddle = nullptr;
         m_Data = nullptr;
     }
@@ -31,10 +32,9 @@ class CTTrie
     typedef struct tagTTrieNode<ALPHABET_TYPE, DATA_TYPE_PTR> TTRIE_NODE;
     typedef struct tagTTrieNode<ALPHABET_TYPE, DATA_TYPE_PTR> * TTRIE_NODE_PTR;
 public:
-    CTTrie(ALPHABET_TYPE alpbhabetTerminator)
+    CTTrie(ALPHABET_TYPE alpbhabetTerminator):m_stRoot(alpbhabetTerminator)
     {
         m_AlpbhabetTerminator = alpbhabetTerminator;
-        m_stRoot.m_split_char = alpbhabetTerminator;
     }
     ~CTTrie()
     {
@@ -49,7 +49,7 @@ public:
 
         TTRIE_NODE_PTR pRoot = &m_stRoot;
 
-        while(*pStr != m_AlpbhabetTerminator)
+        while(pRoot && (*pStr != m_AlpbhabetTerminator))
         {
             if(pRoot->m_split_char == *pStr)
             {
@@ -58,39 +58,27 @@ public:
             }
             else if(pRoot->m_split_char == m_AlpbhabetTerminator)
             {
-                pRoot->m_pMiddle = new TTRIE_NODE;
-                if(nullptr == pRoot->m_pMiddle)
-                    return nullptr;
                 pRoot->m_split_char = *pStr;
+
+                pRoot->m_pMiddle = new TTRIE_NODE(m_AlpbhabetTerminator);
                 pRoot = pRoot->m_pMiddle;
-                pRoot->m_split_char = m_AlpbhabetTerminator;
                 pStr++;
             }
             else if(*pStr < pRoot->m_split_char)
             {
                 if(nullptr == pRoot->m_pLeft)
                 {
-                    pRoot->m_pLeft = new TTRIE_NODE;
-                    if(nullptr == pRoot->m_pLeft)
-                        return nullptr;
-                    pRoot = pRoot->m_pLeft;
-                    pRoot->m_split_char = m_AlpbhabetTerminator;
+                    pRoot->m_pLeft = new TTRIE_NODE(m_AlpbhabetTerminator);
                 }
-                else
-                    pRoot = pRoot->m_pLeft;
+                pRoot = pRoot->m_pLeft;
             }
             else
             {
                 if(nullptr == pRoot->m_pRight)
                 {
-                    pRoot->m_pRight = new TTRIE_NODE;
-                    if(nullptr == pRoot->m_pRight)
-                        return nullptr;
-                    pRoot = pRoot->m_pRight;
-                    pRoot->m_split_char = m_AlpbhabetTerminator;
+                    pRoot->m_pRight = new TTRIE_NODE(m_AlpbhabetTerminator);
                 }
-                else
-                    pRoot = pRoot->m_pRight;
+                pRoot = pRoot->m_pRight;
             }
         }
 
@@ -176,6 +164,8 @@ int main()
     pStr = "Rajesh";    ternary_trie.Insert(pStr, (char*)pStr);
     pStr = "Amesh";    ternary_trie.Insert(pStr, (char*)pStr);
     //pStr = "Ama";    ternary_trie.Insert(pStr, (char*)pStr);
+    pStr = "Raja";    ternary_trie.Insert(pStr, (char*)"New_Raja");
+    pStr = "elish";    ternary_trie.Insert(pStr, (char*)pStr);
 
     pStr = "Raja";
     pOut = ternary_trie.Search(pStr);
@@ -192,6 +182,13 @@ int main()
         cout << "Not Found " << pStr << endl;
 
     pStr = "Amesh";
+    pOut = ternary_trie.Search(pStr);
+    if(pOut)
+        cout << "Found " << pOut << endl;
+    else
+        cout << "Not Found " << pStr << endl;
+
+    pStr = "esh";
     pOut = ternary_trie.Search(pStr);
     if(pOut)
         cout << "Found " << pOut << endl;
