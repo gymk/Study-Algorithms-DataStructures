@@ -159,7 +159,7 @@ private:
 
 int main()
 {
-    CTTrie<char,char*>  ternary_trie('\0');
+    CTTrie<char,char*>  ternary_trie(ALPHABET_TERMINATOR);
     const char * pStr;
     char * pOut;
 
