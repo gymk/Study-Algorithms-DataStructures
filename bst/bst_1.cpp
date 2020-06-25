@@ -93,6 +93,25 @@ public:
     }
   }
 
+  int min() {
+    TreeNode * n = min(root);
+
+    if(nullptr != n)
+      return n->data;
+
+    return 0;
+  }
+
+  int max() {
+    TreeNode * n = max(root);
+
+    if(nullptr != n)
+      return n->data;
+
+    return 0;
+  }
+
+  // Uses Hibbard BST delete algorithm
   bool remove(int d) {
     if (!root) {
       return false;
@@ -144,25 +163,65 @@ public:
           update_parent(parent, p_dir, n->right);
       }
       else {                        // 3 (b). Right child has left child
-        TreeNode *successor, *t;
+        TreeNode *successor, *tmp;
         successor = n->right;
         // Find the in-order successor of node n
+        // Particularly parent of the successor
         while(successor->left->left) {      // find left-most descendant
           successor = successor->left;
         }
-        t = successor->left;                // t is now left-most descendant
-        successor->left = t->right;         // t's parent takes on t's right sub-tree
-        t->right = n->right;         // t replaces n
+        tmp = successor->left;              // tmp is now left-most descendant
+        successor->left = tmp->right;       // tmp's parent takes on tmp's right sub-tree
+        tmp->right = n->right;              // tmp replaces n
         if(n == root)
-          root = t;
+          root = tmp;
         else
-          update_parent(parent, p_dir, t);
+          update_parent(parent, p_dir, tmp);
       }
     }
     delete n;
     size--;
     return true;
 
+  }
+
+  void inorder_traverse(void) {
+    std::cout << "In-Order Traverse: ";
+    inorder(root);
+    std::cout << std::endl;
+  }
+
+  void preorder_traverse(void) {
+    std::cout << "Pre-Order Traverse: ";
+    preorder(root);
+    std::cout << std::endl;
+  }
+
+  void postorder_traverse(void) {
+    std::cout << "Post-Order Traverse: ";
+    postorder(root);
+    std::cout << std::endl;
+  }
+
+private:
+  TreeNode * min(TreeNode * n) {
+    if(nullptr == n)
+      return nullptr;
+
+    while(n->left != nullptr)
+      n = n->left;
+
+    return n;
+  }
+
+  TreeNode * max(TreeNode * n) {
+    if(nullptr == n)
+      return nullptr;
+    
+    while(n->right != nullptr)
+      n = n->right;
+
+    return n;
   }
 
   void update_parent(TreeNode * n, int p_dir, TreeNode * child_node) {
@@ -174,9 +233,37 @@ public:
       }
     }
   }
+
+  void inorder(TreeNode * n) {
+    if(nullptr == n)
+      return;
+
+    inorder(n->left);
+    std::cout << n->data << " ";
+    inorder(n->right);
+  }
+
+  void preorder(TreeNode * n) {
+    if(nullptr == n)
+      return;
+    std::cout << n->data << " ";
+    postorder(n->left);
+    postorder(n->right);
+  }
+
+  void postorder(TreeNode * n) {
+    if(nullptr == n)
+      return;
+
+    preorder(n->left);
+    preorder(n->right);
+    std::cout << n->data << " ";
+  }
 };
 
 void test_1() {
+  std::cout << "Test Case 1" << std::endl;
+
   BST b;
 
   b.insert(90);
@@ -191,6 +278,13 @@ void test_1() {
   b.insert(68);
   b.insert(62);
   b.insert(10);
+
+  b.inorder_traverse();
+  b.preorder_traverse();
+  b.postorder_traverse();
+
+  // min & max
+  std::cout << "min: " << b.min() << ", max: " << b.max() << std::endl;
 
   // Search
   // std::cout << std::boolalpha << "contains 60? " << b.contains(60) << std::endl;
@@ -210,9 +304,13 @@ void test_1() {
   // Delete-
   // std::cout << std::boolalpha << "remove 50: " << b.remove(50) << std::endl;
   // std::cout << std::boolalpha << "contains 50? " << b.contains(50) << std::endl;
+
+  std::cout << std::endl;
 }
 
 void test_2() {
+  std::cout << "Test Case 2" << std::endl;
+
   BST b;
 
   b.insert(5);
@@ -222,12 +320,23 @@ void test_2() {
   b.insert(19);
   b.insert(25);
 
+  b.inorder_traverse();
+  b.preorder_traverse();
+  b.postorder_traverse();
+
+  // min & max
+  std::cout << "min: " << b.min() << ", max: " << b.max() << std::endl;
+
   std::cout << std::boolalpha << "remove 12: " << b.remove(12) << std::endl;
   std::cout << std::boolalpha << "contains 12? " << b.contains(12) << std::endl;
+
+  std::cout << std::endl;
 }
 
 // http://www.mathcs.emory.edu/~cheung/Courses/171/Syllabus/9-BinTree/BST-delete2.html
 void test_3() {
+  std::cout << "Test Case 3" << std::endl;
+
   BST b;
 
   b.insert(6);
@@ -239,14 +348,53 @@ void test_3() {
   b.insert(9);
   b.insert(10);
 
+  b.inorder_traverse();
+  b.preorder_traverse();
+  b.postorder_traverse();
+
+  // min & max
+  std::cout << "min: " << b.min() << ", max: " << b.max() << std::endl;
+
   std::cout << std::boolalpha << "remove 6: " << b.remove(6) << std::endl;
   std::cout << std::boolalpha << "contains 6? " << b.contains(6) << std::endl;
+
+  std::cout << std::endl;
+}
+
+// https://algs4.cs.princeton.edu/32bst/
+void test_4() {
+  std::cout << "Test Case 4" << std::endl;
+
+  BST b;
+
+  b.insert('S');
+  b.insert('E');
+  b.insert('X');
+  b.insert('A');
+  b.insert('R');
+  b.insert('C');
+  b.insert('H');
+  b.insert('M');
+  b.insert('G');
+
+  b.inorder_traverse();
+  b.preorder_traverse();
+  b.postorder_traverse();
+
+  // min & max
+  std::cout << "min: " << b.min() << ", max: " << b.max() << std::endl;
+
+  std::cout << std::boolalpha << "remove 6: " << b.remove(6) << std::endl;
+  std::cout << std::boolalpha << "contains 6? " << b.contains(6) << std::endl;
+
+  std::cout << std::endl;
 }
 
 int main() {
   test_1();
   test_2();
   test_3();
+  test_4();
 
   return 0;
 }
@@ -257,3 +405,39 @@ int main() {
 // Hibbard Node Deletion algorithm
 //  1. https://algs4.cs.princeton.edu/32bst/#:~:text=Hibbard%20in%201962%2C%20is%20to,are%20no%20keys%20between%20x.
 //  2. http://www.mathcs.emory.edu/~cheung/Courses/171/Syllabus/9-BinTree/BST-delete2.html
+
+/*
+Output:
+
+Test Case 1
+In-Order Traverse: 10 20 50 60 62 66 68 75 80 90 150
+Pre-Order Traverse: 90 20 10 75 60 62 68 66 80 50 150
+Post-Order Traverse: 50 10 20 66 62 60 68 80 75 150 90
+min: 10, max: 150
+remove 150: true
+contains 150? false
+
+Test Case 2
+In-Order Traverse: 5 9 12 19 21 25
+Pre-Order Traverse: 5 9 21 19 25 12
+Post-Order Traverse: 12 9 19 25 21 5
+min: 5, max: 25
+remove 12: true
+contains 12? false
+
+Test Case 3
+In-Order Traverse: 1 2 6 8 9 10 11 15
+Pre-Order Traverse: 6 1 2 8 10 9 15 11
+Post-Order Traverse: 2 1 11 9 10 8 15 6
+min: 1, max: 15
+remove 6: true
+contains 6? false
+
+Test Case 4
+In-Order Traverse: 65 67 69 71 72 77 82 83 88 
+Pre-Order Traverse: 83 65 67 82 71 77 72 69 88
+Post-Order Traverse: 69 67 65 72 71 77 82 88 83
+min: 65, max: 88
+remove 6: false
+contains 6? false
+*/
