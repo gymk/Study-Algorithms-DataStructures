@@ -1,0 +1,13 @@
+{
+  "files.associations": {
+    "ios": "cpp",
+    "system_error": "cpp",
+    "vector": "cpp",
+    "xiosbase": "cpp",
+    "xstring": "cpp",
+    "ostream": "cpp"
+  },
+  "cSpell.words": [
+    "Hibbard"
+  ]
+}
